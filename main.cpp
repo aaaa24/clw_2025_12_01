@@ -28,6 +28,12 @@ namespace top {
     Dot(p_t p);
   };
 
+  struct VSeg: IDraw {};
+
+  struct HSeg: IDraw {};
+
+  struct Circle: IDraw {};
+
   struct frame_t {
     p_t left_bot;
     p_t right_top;
@@ -89,19 +95,38 @@ top::p_t top::Dot::next(p_t) const
 }
 
 void top::make_f(top::IDraw ** b, size_t k)
-{}
+{
+  b[0] = new Dot(0, 0);
+  b[1] = new Dot(-1, -5);
+  b[2] = new Dot(7, 7);
+}
 
 void top::get_points(top::IDraw * b, p_t ** ps, size_t & s)
-{}
+{
+  p_t a = b->begin();
+  // Достать точки
+  // Сгенерировать точки
+  // Положить в ps (обновить массив)
+  // Обновить размер
+}
 
 top::frame_t top::build_frame(const top::p_t * ps, size_t s)
-{}
+{
+  // Найти min и max для x и y
+  // Сформировать frame_t
+}
 
 char * top::build_canvas(top::frame_t f)
-{}
+{
+  // Посчитать кол-во колонок и строк (max - min + 1)
+}
 
 void top::paint_canvas(char * cnv, top::frame_t fr, const top::p_t * ps, size_t k, char f)
-{}
+{
+  // Перевести в другие координаты
+}
 
 void top::print_canvas(const char * cnv, top::frame_t fr)
-{}
+{
+  // std::cout
+}
