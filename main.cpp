@@ -47,6 +47,15 @@ namespace top {
     int length;
   };
 
+  struct DLine: IDraw {
+    DLine(int x, int y, int l);
+    DLine(p_t p, int l);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
+
   struct Circle: IDraw {
     Circle(int x, int y, int r);
     Circle(p_t p, int r);
@@ -100,6 +109,14 @@ int main()
   delete [] p;
   delete [] cnv;
   return err;
+}
+
+void top::make_f(IDraw ** b, size_t k)
+{
+  b[0] = new Dot(0, 0);
+  b[1] = new HLine(2, 2, 3);
+  b[2] = new VLine(3, 3, 4);
+  b[3] = new DLine(-10, -10, 4);
 }
 
 top::Dot::Dot(int x, int y):
@@ -184,6 +201,37 @@ top::p_t top::HLine::next(p_t p) const
   return p_t{p.x + 1, start.y};
 }
 
+top::DLine::DLine(int x, int y, int l):
+  DLine({x, y}, l)
+{}
+
+top::DLine::DLine(p_t p, int l):
+  IDraw(),
+  start{p.x, p.y},
+  length(l)
+{
+  if (length == 0) {
+    throw std::invalid_argument("lenght can not be 0");
+  }
+  if (length < 0) {
+    length *= -1;
+    start.x -= length;
+  }
+}
+
+top::p_t top::DLine::begin() const
+{
+  return start;
+}
+
+top::p_t top::DLine::next(p_t p) const
+{
+  if (p.x == start.x + length - 1) {
+    return begin();
+  }
+  return p_t{p.x + 1, p.y + 1};
+}
+
 top::Circle::Circle(int x, int y, int r):
   Circle({x, y}, r)
 {}
@@ -229,14 +277,6 @@ top::p_t top::Circle::next(p_t p) const
     }
   }
   return p;
-}
-
-void top::make_f(IDraw ** b, size_t k)
-{
-  b[0] = new Dot(0, 0);
-  b[1] = new HLine(2, 2, 3);
-  b[2] = new VLine(3, 3, 4);
-  b[3] = new Circle(-10, -10, 4);
 }
 
 void top::extend(p_t ** ps, size_t s, p_t p)
