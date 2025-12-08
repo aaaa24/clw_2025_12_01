@@ -29,18 +29,18 @@ namespace top {
     p_t o;
   };
 
-  struct VSeg: IDraw {
-    VSeg(int x, int y, int l);
-    VSeg(p_t p, int l);
+  struct VLine: IDraw {
+    VLine(int x, int y, int l);
+    VLine(p_t p, int l);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t start;
     int length;
   };
 
-  struct HSeg: IDraw {
-    HSeg(int x, int y, int l);
-    HSeg(p_t p, int l);
+  struct HLine: IDraw {
+    HLine(int x, int y, int l);
+    HLine(p_t p, int l);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t start;
@@ -122,11 +122,11 @@ top::p_t top::Dot::next(p_t p) const
   return begin();
 }
 
-top::VSeg::VSeg(int x, int y, int l):
-  VSeg({x, y}, l)
+top::VLine::VLine(int x, int y, int l):
+  VLine({x, y}, l)
 {}
 
-top::VSeg::VSeg(p_t p, int l):
+top::VLine::VLine(p_t p, int l):
   IDraw(),
   start{p.x, p.y},
   length(l)
@@ -140,12 +140,12 @@ top::VSeg::VSeg(p_t p, int l):
   }
 }
 
-top::p_t top::VSeg::begin() const
+top::p_t top::VLine::begin() const
 {
   return start;
 }
 
-top::p_t top::VSeg::next(p_t p) const
+top::p_t top::VLine::next(p_t p) const
 {
   if (p.y == start.y + length - 1) {
     return begin();
@@ -153,11 +153,11 @@ top::p_t top::VSeg::next(p_t p) const
   return p_t{start.x, p.y + 1};
 }
 
-top::HSeg::HSeg(int x, int y, int l):
-  HSeg({x, y}, l)
+top::HLine::HLine(int x, int y, int l):
+  HLine({x, y}, l)
 {}
 
-top::HSeg::HSeg(p_t p, int l):
+top::HLine::HLine(p_t p, int l):
   IDraw(),
   start{p.x, p.y},
   length(l)
@@ -171,12 +171,12 @@ top::HSeg::HSeg(p_t p, int l):
   }
 }
 
-top::p_t top::HSeg::begin() const
+top::p_t top::HLine::begin() const
 {
   return start;
 }
 
-top::p_t top::HSeg::next(p_t p) const
+top::p_t top::HLine::next(p_t p) const
 {
   if (p.x == start.x + length - 1) {
     return begin();
@@ -234,8 +234,8 @@ top::p_t top::Circle::next(p_t p) const
 void top::make_f(IDraw ** b, size_t k)
 {
   b[0] = new Dot(0, 0);
-  b[1] = new HSeg(2, 2, 3);
-  b[2] = new VSeg(3, 3, 4);
+  b[1] = new HLine(2, 2, 3);
+  b[2] = new VLine(3, 3, 4);
   b[3] = new Circle(-10, -10, 4);
 }
 
