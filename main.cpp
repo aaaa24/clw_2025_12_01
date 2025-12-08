@@ -37,7 +37,14 @@ namespace top {
     int length;
   };
 
-  struct HSeg: IDraw {};
+  struct HSeg: IDraw {
+    HSeg(int x, int y, int l);
+    HSeg(p_t p, int l);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
 
   struct Circle: IDraw {};
 
@@ -87,7 +94,7 @@ top::Dot::Dot(int x, int y):
   IDraw(), o{x, y}
 {}
 
-top::Dot::Dot(top::p_t p):
+top::Dot::Dot(p_t p):
   IDraw(), o{p.x, p.y}
 {}
 
@@ -96,16 +103,24 @@ top::p_t top::Dot::begin() const
   return o;
 }
 
-top::p_t top::Dot::next(top::p_t p) const
+top::p_t top::Dot::next(p_t p) const
 {
   return begin();
 }
 
 top::VSeg::VSeg(int x, int y, int l):
   IDraw(), start{x, y}, length(l)
-{}
+{
+  if (length == 0) {
+    throw std::invalid_argument("lenght can not be 0");
+  }
+  if (length < 0) {
+    length *= -1;
+    start.y -= length;
+  }
+}
 
-top::VSeg::VSeg(top::p_t p, int l):
+top::VSeg::VSeg(p_t p, int l):
   IDraw(), start{p.x, p.y}, length(l)
 {}
 
@@ -114,12 +129,41 @@ top::p_t top::VSeg::begin() const
   return start;
 }
 
-top::p_t top::VSeg::next(top::p_t p) const
+top::p_t top::VSeg::next(p_t p) const
 {
   if (p.y == start.y + length - 1) {
     return begin();
   }
   return p_t{start.x, p.y + 1};
+}
+
+top::HSeg::HSeg(int x, int y, int l):
+  IDraw(), start{x, y}, length(l)
+{
+  if (length == 0) {
+    throw std::invalid_argument("lenght can not be 0");
+  }
+  if (length < 0) {
+    length *= -1;
+    start.x -= length;
+  }
+}
+
+top::HSeg::HSeg(p_t p, int l):
+  IDraw(), start{p.x, p.y}, length(l)
+{}
+
+top::p_t top::HSeg::begin() const
+{
+  return start;
+}
+
+top::p_t top::HSeg::next(p_t p) const
+{
+  if (p.x == start.x + length - 1) {
+    return begin();
+  }
+  return p_t{p.x + 1, start.y};
 }
 
 void top::make_f(top::IDraw ** b, size_t k)
