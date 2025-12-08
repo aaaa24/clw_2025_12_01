@@ -1,4 +1,5 @@
 #include <iostream>
+#include <cmath>
 
 namespace top {
   struct p_t {
@@ -46,7 +47,14 @@ namespace top {
     int length;
   };
 
-  struct Circle: IDraw {};
+  struct Circle: IDraw {
+    Circle(int x, int y, int r);
+    Circle(p_t p, int r);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t o;
+    int radius;
+  };
 
   struct frame_t {
     p_t left_bot;
@@ -172,6 +180,36 @@ top::p_t top::HSeg::next(p_t p) const
     return begin();
   }
   return p_t{p.x + 1, start.y};
+}
+
+top::Circle::Circle(int x, int y, int r):
+  IDraw(),
+  o{x, y},
+  radius(r)
+{
+  if (radius == 0) {
+    throw std::invalid_argument("radius can not be 0");
+  }
+  if (radius < 0) {
+    radius *= -1;
+  }
+}
+
+top::Circle::Circle(p_t p, int r)
+{
+  Circle(p.x, p.y, r);
+}
+
+top::p_t top::Circle::begin() const
+{
+  return p_t{o.x + radius, o.y};
+}
+
+top::p_t top::Circle::next(p_t p) const
+{
+  if (radius == 1) {
+    return begin();
+  }
 }
 
 void top::make_f(top::IDraw ** b, size_t k)
