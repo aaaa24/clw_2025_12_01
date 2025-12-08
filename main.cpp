@@ -6,6 +6,11 @@ namespace top {
     int x, y;
   };
 
+  struct frame_t {
+    p_t left_bot;
+    p_t right_top;
+  };
+
   struct IDraw {
     virtual p_t begin() const = 0;
     virtual p_t next(p_t) const = 0;
@@ -56,6 +61,15 @@ namespace top {
     int length;
   };
 
+  struct Square: IDraw {
+    Square(int x, int y, int a);
+    Square(p_t p, int a);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t left_bot;
+    int side;
+  };
+
   struct Circle: IDraw {
     Circle(int x, int y, int r);
     Circle(p_t p, int r);
@@ -63,11 +77,6 @@ namespace top {
     p_t next(p_t p) const override;
     p_t o;
     int radius;
-  };
-
-  struct frame_t {
-    p_t left_bot;
-    p_t right_top;
   };
 
   void extend(p_t ** ps, size_t s, p_t p);
@@ -85,7 +94,7 @@ int main()
 {
   using namespace top;
   int err = 0;
-  const size_t count = 4;
+  const size_t count = 5;
   IDraw * f[count] = {};
   p_t * p = nullptr;
   size_t s = 0;
@@ -117,6 +126,7 @@ void top::make_f(IDraw ** b, size_t k)
   b[1] = new HLine(2, 2, 3);
   b[2] = new VLine(3, 3, 4);
   b[3] = new DLine(-10, -10, 4);
+  b[4] = new Square(-10, 10, 5);
 }
 
 top::Dot::Dot(int x, int y):
@@ -230,6 +240,39 @@ top::p_t top::DLine::next(p_t p) const
     return begin();
   }
   return p_t{p.x + 1, p.y + 1};
+}
+
+top::Square::Square(int x, int y, int a):
+  Square({x, y}, a)
+{}
+
+top::Square::Square(p_t p, int a):
+  IDraw(),
+  left_bot(p),
+  side(a)
+{}
+
+top::p_t top::Square::begin() const
+{
+  return left_bot;
+}
+
+top::p_t top::Square::next(p_t p) const 
+{
+  if (p.x == left_bot.x && p != left_bot) {
+    std::cout << "1 " << p.x << " " << p.y << "\n";
+    return {p.x, p.y - 1};
+  }
+  if (p.y == left_bot.y + side - 1) {
+    std::cout << "2 " << p.x << " " << p.y << "\n";
+    return {p.x - 1, p.y};
+  }
+  if (p.x == left_bot.x + side - 1) {
+    std::cout << "3 " << p.x << " " << p.y << "\n";
+    return {p.x, p.y + 1};
+  }
+  std::cout << "4 " << p.x << " " << p.y << "\n";
+  return {p.x + 1, p.y};
 }
 
 top::Circle::Circle(int x, int y, int r):
