@@ -63,7 +63,7 @@ namespace top {
 
   void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
-  size_t get_points(top::IDraw & b, p_t ** ps, size_t & s);
+  void get_points(top::IDraw & b, p_t ** ps, size_t & s);
   frame_t build_frame(const p_t * ps, size_t s);
   char * build_canvas(frame_t f);
   void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f);
@@ -252,7 +252,7 @@ void top::extend(p_t ** ps, size_t s, p_t p)
 // Сгенерировать точки
 // Положить в ps (обновить массив)
 // Обновить размер
-size_t top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
+void top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
 {
   p_t p = b.begin();
   extend(ps, s, p);
@@ -262,13 +262,27 @@ size_t top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
     extend(ps, s + delta, p);
     ++delta;
   }
-  return delta;
+  s = delta;
 }
 
+// Найти min и max для x и y
+// Сформировать frame_t
 top::frame_t top::build_frame(const top::p_t * ps, size_t s)
 {
-  // Найти min и max для x и y
-  // Сформировать frame_t
+  if (!s) {
+    throw std::logic_error("bad size");
+  }
+  int minx = ps[0].x, maxx = minx;
+  int miny = ps[0].y, maxy = miny;
+  for (size_t i = 1; i < s; ++i) {
+    minx = std::min(minx, ps[i].x);
+    maxx = std::max(maxx, ps[i].x);
+    miny = std::min(miny, ps[i].y);
+    maxy = std::max(maxy, ps[i].y);
+  }
+  p_t aa{minx, miny};
+  p_t bb{maxx, maxy};
+  return {aa, bb};
 }
 
 char * top::build_canvas(top::frame_t f)
