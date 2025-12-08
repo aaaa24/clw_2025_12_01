@@ -76,15 +76,15 @@ int main()
 {
   using namespace top;
   int err = 0;
-  const size_t count = 3;
+  const size_t count = 4;
   IDraw * f[count] = {};
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
   std::ostream & output = std::cout;
   try {
-    make_f(f, 3);
-    for (size_t i = 0; i < 3; ++i) {
+    make_f(f, count);
+    for (size_t i = 0; i < count; ++i) {
       get_points((*f[i]), &p, s);
     }
     frame_t fr = build_frame(p, s);
@@ -94,9 +94,9 @@ int main()
   } catch (...) {
     err = 1;
   }
-  delete f[0];
-  delete f[1];
-  delete f[2];
+  for (size_t i = 0; i < count; ++i) {
+    delete f[i];
+  }
   delete [] p;
   delete [] cnv;
   return err;
@@ -123,18 +123,8 @@ top::p_t top::Dot::next(p_t p) const
 }
 
 top::VSeg::VSeg(int x, int y, int l):
-  IDraw(),
-  start{x, y},
-  length(l)
-{
-  if (length == 0) {
-    throw std::invalid_argument("lenght can not be 0");
-  }
-  if (length < 0) {
-    length *= -1;
-    start.y -= length;
-  }
-}
+  VSeg({x, y}, l)
+{}
 
 top::VSeg::VSeg(p_t p, int l):
   IDraw(),
@@ -164,18 +154,8 @@ top::p_t top::VSeg::next(p_t p) const
 }
 
 top::HSeg::HSeg(int x, int y, int l):
-  IDraw(),
-  start{x, y},
-  length(l)
-{
-  if (length == 0) {
-    throw std::invalid_argument("lenght can not be 0");
-  }
-  if (length < 0) {
-    length *= -1;
-    start.x -= length;
-  }
-}
+  HSeg({x, y}, l)
+{}
 
 top::HSeg::HSeg(p_t p, int l):
   IDraw(),
@@ -205,17 +185,8 @@ top::p_t top::HSeg::next(p_t p) const
 }
 
 top::Circle::Circle(int x, int y, int r):
-  IDraw(),
-  o{x, y},
-  radius(r)
-{
-  if (radius == 0) {
-    throw std::invalid_argument("radius can not be 0");
-  }
-  if (radius < 0) {
-    radius *= -1;
-  }
-}
+  Circle({x, y}, r)
+{}
 
 top::Circle::Circle(p_t p, int r):
   IDraw(),
@@ -235,6 +206,7 @@ top::p_t top::Circle::begin() const
   return p_t{o.x + radius, o.y};
 }
 
+// Не работает
 top::p_t top::Circle::next(p_t p) const
 {
   if (radius == 1) {
@@ -243,17 +215,20 @@ top::p_t top::Circle::next(p_t p) const
   const double PI = acos(-1.0);
   int dx = p.x - o.x;
   int dy = p.y - o.y;
-  double angle = atan2(dy, dx);
+  int angle = atan2(dy, dx) * 180.0 / PI;
   if (angle < 0) {
-    angle += 2 * PI;
+    angle += 360;
   }
-  angle += 2 * PI / 360.0;
-  if (angle >= 2 * PI) {
-    angle -= 2 * PI;
+  for (int i = 0; i < 360; ++i) {
+    int new_angle = (angle + i) % 360;
+    int new_x = o.x + radius * cos(new_angle);
+    int new_y = o.y + radius * sin(new_angle);
+    p_t new_p{new_x, new_y};
+    if (new_p != p) {
+      return new_p;
+    }
   }
-  int new_x = static_cast<int>(std::round(o.x + radius * cos(angle)));
-  int new_y = static_cast<int>(std::round(o.y + radius * sin(angle)));
-  return p_t{new_x, new_y};
+  return p;
 }
 
 void top::make_f(IDraw ** b, size_t k)
@@ -261,6 +236,7 @@ void top::make_f(IDraw ** b, size_t k)
   b[0] = new Dot(0, 0);
   b[1] = new HSeg(2, 2, 3);
   b[2] = new VSeg(3, 3, 4);
+  b[3] = new Circle(-10, -10, 4);
 }
 
 void top::extend(p_t ** ps, size_t s, p_t p)
