@@ -91,11 +91,13 @@ int main()
 }
 
 top::Dot::Dot(int x, int y):
-  IDraw(), o{x, y}
+  IDraw(),
+  o{x, y}
 {}
 
 top::Dot::Dot(p_t p):
-  IDraw(), o{p.x, p.y}
+  IDraw(),
+  o(p)
 {}
 
 top::p_t top::Dot::begin() const
@@ -109,7 +111,9 @@ top::p_t top::Dot::next(p_t p) const
 }
 
 top::VSeg::VSeg(int x, int y, int l):
-  IDraw(), start{x, y}, length(l)
+  IDraw(),
+  start{x, y},
+  length(l)
 {
   if (length == 0) {
     throw std::invalid_argument("lenght can not be 0");
@@ -120,9 +124,10 @@ top::VSeg::VSeg(int x, int y, int l):
   }
 }
 
-top::VSeg::VSeg(p_t p, int l):
-  IDraw(), start{p.x, p.y}, length(l)
-{}
+top::VSeg::VSeg(p_t p, int l)
+{
+  VSeg(p.x, p.y, l);
+}
 
 top::p_t top::VSeg::begin() const
 {
@@ -138,7 +143,9 @@ top::p_t top::VSeg::next(p_t p) const
 }
 
 top::HSeg::HSeg(int x, int y, int l):
-  IDraw(), start{x, y}, length(l)
+  IDraw(),
+  start{x, y},
+  length(l)
 {
   if (length == 0) {
     throw std::invalid_argument("lenght can not be 0");
@@ -149,9 +156,10 @@ top::HSeg::HSeg(int x, int y, int l):
   }
 }
 
-top::HSeg::HSeg(p_t p, int l):
-  IDraw(), start{p.x, p.y}, length(l)
-{}
+top::HSeg::HSeg(p_t p, int l)
+{
+  HSeg(p.x, p.y, l);
+}
 
 top::p_t top::HSeg::begin() const
 {
