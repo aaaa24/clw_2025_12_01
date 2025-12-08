@@ -21,14 +21,21 @@ namespace top {
   }
 
   struct Dot: IDraw {
-    p_t begin() const override;
-    p_t next(p_t) const override;
-    p_t o;
     Dot(int x, int y);
     Dot(p_t p);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t o;
   };
 
-  struct VSeg: IDraw {};
+  struct VSeg: IDraw {
+    VSeg(int x, int y, int l);
+    VSeg(p_t p, int l);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t start;
+    int length;
+  };
 
   struct HSeg: IDraw {};
 
@@ -80,7 +87,7 @@ top::Dot::Dot(int x, int y):
   IDraw(), o{x, y}
 {}
 
-top::Dot::Dot(p_t p):
+top::Dot::Dot(top::p_t p):
   IDraw(), o{p.x, p.y}
 {}
 
@@ -89,9 +96,30 @@ top::p_t top::Dot::begin() const
   return o;
 }
 
-top::p_t top::Dot::next(p_t) const
+top::p_t top::Dot::next(top::p_t p) const
 {
   return begin();
+}
+
+top::VSeg::VSeg(int x, int y, int l):
+  IDraw(), start{x, y}, length(l)
+{}
+
+top::VSeg::VSeg(top::p_t p, int l):
+  IDraw(), start{p.x, p.y}, length(l)
+{}
+
+top::p_t top::VSeg::begin() const
+{
+  return start;
+}
+
+top::p_t top::VSeg::next(top::p_t p) const
+{
+  if (p.y == start.y + length - 1) {
+    return begin();
+  }
+  return p_t{start.x, p.y + 1};
 }
 
 void top::make_f(top::IDraw ** b, size_t k)
