@@ -68,8 +68,8 @@ namespace top {
   size_t rows(frame_t fr);
   size_t cols(frame_t fr);
   char * build_canvas(frame_t fr, char fill);
-  void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill);
-  void print_canvas(const char * cnv, frame_t fr);
+  void paint_canvas(char * cnv, frame_t fr, const p_t ps, size_t k, char fill);
+  void print_canvas(std::ostream & output, const char * cnv, frame_t fr);
 }
 
 int main()
@@ -81,15 +81,16 @@ int main()
   p_t * p = nullptr;
   size_t s = 0;
   char * cnv = nullptr;
+  std::ostream & output = std::cout;
   try {
     make_f(f, 3);
     for (size_t i = 0; i < 3; ++i) {
       get_points((*f[i]), &p, s);
     }
     frame_t fr = build_frame(p, s);
-    cnv = build_canvas(fr, '#');
-    paint_canvas(cnv, fr, p, s, '#');
-    print_canvas(cnv, fr);
+    cnv = build_canvas(fr, '.');
+    paint_canvas(cnv, fr, (*p), s, '#');
+    print_canvas(output, cnv, fr);
   } catch (...) {
     err = 1;
   }
@@ -232,11 +233,11 @@ top::p_t top::Circle::next(p_t p) const
   return p;
 }
 
-void top::make_f(top::IDraw ** b, size_t k)
+void top::make_f(IDraw ** b, size_t k)
 {
   b[0] = new Dot(0, 0);
-  b[1] = new Dot(-1, -5);
-  b[2] = new Dot(7, 7);
+  b[1] = new HSeg(2, 2, 3);
+  b[2] = new VSeg(3, 3, 4);
 }
 
 void top::extend(p_t ** ps, size_t s, p_t p)
@@ -254,7 +255,7 @@ void top::extend(p_t ** ps, size_t s, p_t p)
 // Сгенерировать точки
 // Положить в ps (обновить массив)
 // Обновить размер
-void top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
+void top::get_points(IDraw & b, p_t ** ps, size_t & s)
 {
   p_t p = b.begin();
   extend(ps, s, p);
@@ -264,7 +265,7 @@ void top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
     extend(ps, s + delta, p);
     ++delta;
   }
-  s = delta;
+  s += delta;
 }
 
 // Найти min и max для x и y
@@ -315,7 +316,12 @@ void top::paint_canvas(char * cnv, frame_t fr, const p_t ps, size_t k, char fill
   cnv[dy * cols(fr) + dx] = fill;
 }
 
-void top::print_canvas(const char * cnv, top::frame_t fr)
+void top::print_canvas(std::ostream & output, const char * cnv, frame_t fr)
 {
-  // std::cout
+  for (size_t i = 0; i < rows(fr); ++i) {
+    for (size_t j = 0; j < cols(fr); ++j) {
+      output << cnv[i * cols(fr) + j];
+    }
+    output << "\n";
+  }
 }
