@@ -65,8 +65,10 @@ namespace top {
   void make_f(IDraw ** b, size_t k);
   void get_points(top::IDraw & b, p_t ** ps, size_t & s);
   frame_t build_frame(const p_t * ps, size_t s);
-  char * build_canvas(frame_t f);
-  void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f);
+  size_t rows(frame_t fr);
+  size_t cols(frame_t fr);
+  char * build_canvas(frame_t fr, char fill);
+  void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill);
   void print_canvas(const char * cnv, frame_t fr);
 }
 
@@ -85,7 +87,7 @@ int main()
       get_points((*f[i]), &p, s);
     }
     frame_t fr = build_frame(p, s);
-    cnv = build_canvas(fr);
+    cnv = build_canvas(fr, '#');
     paint_canvas(cnv, fr, p, s, '#');
     print_canvas(cnv, fr);
   } catch (...) {
@@ -267,7 +269,7 @@ void top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
 
 // Найти min и max для x и y
 // Сформировать frame_t
-top::frame_t top::build_frame(const top::p_t * ps, size_t s)
+top::frame_t top::build_frame(const p_t * ps, size_t s)
 {
   if (!s) {
     throw std::logic_error("bad size");
@@ -285,14 +287,32 @@ top::frame_t top::build_frame(const top::p_t * ps, size_t s)
   return {aa, bb};
 }
 
-char * top::build_canvas(top::frame_t f)
+size_t top::rows(frame_t fr)
 {
-  // Посчитать кол-во колонок и строк (max - min + 1)
+  return (fr.right_top.y - fr.left_bot.y + 1);
 }
 
-void top::paint_canvas(char * cnv, top::frame_t fr, const top::p_t * ps, size_t k, char f)
+size_t top::cols(frame_t fr)
 {
-  // Перевести в другие координаты
+  return (fr.right_top.x - fr.left_bot.x + 1);
+}
+
+// Посчитать кол-во колонок и строк (max - min + 1)
+char * top::build_canvas(frame_t fr, char fill)
+{
+  char * cnv = new char[rows(fr) * cols(fr)];
+  for (size_t i = 0; i < rows(fr) * cols(fr); ++i) {
+    cnv[i] = fill;
+  }
+  return cnv;
+}
+
+// Перевести в другие координаты
+void top::paint_canvas(char * cnv, frame_t fr, const p_t ps, size_t k, char fill)
+{
+  int dx = ps.x - fr.left_bot.x;
+  int dy = fr.right_top.y - ps.y;
+  cnv[dy * cols(fr) + dx] = fill;
 }
 
 void top::print_canvas(const char * cnv, top::frame_t fr)
