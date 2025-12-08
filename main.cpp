@@ -68,7 +68,7 @@ namespace top {
   size_t rows(frame_t fr);
   size_t cols(frame_t fr);
   char * build_canvas(frame_t fr, char fill);
-  void paint_canvas(char * cnv, frame_t fr, const p_t ps, size_t k, char fill);
+  void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill);
   void print_canvas(std::ostream & output, const char * cnv, frame_t fr);
 }
 
@@ -89,7 +89,7 @@ int main()
     }
     frame_t fr = build_frame(p, s);
     cnv = build_canvas(fr, '.');
-    paint_canvas(cnv, fr, (*p), s, '#');
+    paint_canvas(cnv, fr, p, s, '#');
     print_canvas(output, cnv, fr);
   } catch (...) {
     err = 1;
@@ -136,9 +136,18 @@ top::VSeg::VSeg(int x, int y, int l):
   }
 }
 
-top::VSeg::VSeg(p_t p, int l)
+top::VSeg::VSeg(p_t p, int l):
+  IDraw(),
+  start{p.x, p.y},
+  length(l)
 {
-  VSeg(p.x, p.y, l);
+  if (length == 0) {
+    throw std::invalid_argument("lenght can not be 0");
+  }
+  if (length < 0) {
+    length *= -1;
+    start.y -= length;
+  }
 }
 
 top::p_t top::VSeg::begin() const
@@ -168,9 +177,18 @@ top::HSeg::HSeg(int x, int y, int l):
   }
 }
 
-top::HSeg::HSeg(p_t p, int l)
+top::HSeg::HSeg(p_t p, int l):
+  IDraw(),
+  start{p.x, p.y},
+  length(l)
 {
-  HSeg(p.x, p.y, l);
+  if (length == 0) {
+    throw std::invalid_argument("lenght can not be 0");
+  }
+  if (length < 0) {
+    length *= -1;
+    start.x -= length;
+  }
 }
 
 top::p_t top::HSeg::begin() const
@@ -199,9 +217,17 @@ top::Circle::Circle(int x, int y, int r):
   }
 }
 
-top::Circle::Circle(p_t p, int r)
+top::Circle::Circle(p_t p, int r):
+  IDraw(),
+  o{p.x, p.y},
+  radius(r)
 {
-  Circle(p.x, p.y, r);
+  if (radius == 0) {
+    throw std::invalid_argument("radius can not be 0");
+  }
+  if (radius < 0) {
+    radius *= -1;
+  }
 }
 
 top::p_t top::Circle::begin() const
@@ -217,20 +243,17 @@ top::p_t top::Circle::next(p_t p) const
   const double PI = acos(-1.0);
   int dx = p.x - o.x;
   int dy = p.y - o.y;
-  int angle = atan2(dy, dx) * 180.0 / PI;
+  double angle = atan2(dy, dx);
   if (angle < 0) {
-    angle += 360;
+    angle += 2 * PI;
   }
-  for (int i = 0; i < 360; ++i) {
-    int new_angle = (angle + i) % 360;
-    int new_x = o.x + radius * cos(new_angle);
-    int new_y = o.y + radius * sin(new_angle);
-    p_t new_p{new_x, new_y};
-    if (new_p != p) {
-      return new_p;
-    }
+  angle += 2 * PI / 360.0;
+  if (angle >= 2 * PI) {
+    angle -= 2 * PI;
   }
-  return p;
+  int new_x = static_cast<int>(std::round(o.x + radius * cos(angle)));
+  int new_y = static_cast<int>(std::round(o.y + radius * sin(angle)));
+  return p_t{new_x, new_y};
 }
 
 void top::make_f(IDraw ** b, size_t k)
@@ -251,25 +274,19 @@ void top::extend(p_t ** ps, size_t s, p_t p)
   *ps = res;
 }
 
-// Достать точки
-// Сгенерировать точки
-// Положить в ps (обновить массив)
-// Обновить размер
 void top::get_points(IDraw & b, p_t ** ps, size_t & s)
 {
   p_t p = b.begin();
   extend(ps, s, p);
-  size_t delta = 1;
+  size_t new_size = s + 1;
   while (b.next(p) != b.begin()) {
     p = b.next(p);
-    extend(ps, s + delta, p);
-    ++delta;
+    extend(ps, new_size, p);
+    new_size++;
   }
-  s += delta;
+  s = new_size;
 }
 
-// Найти min и max для x и y
-// Сформировать frame_t
 top::frame_t top::build_frame(const p_t * ps, size_t s)
 {
   if (!s) {
@@ -298,7 +315,6 @@ size_t top::cols(frame_t fr)
   return (fr.right_top.x - fr.left_bot.x + 1);
 }
 
-// Посчитать кол-во колонок и строк (max - min + 1)
 char * top::build_canvas(frame_t fr, char fill)
 {
   char * cnv = new char[rows(fr) * cols(fr)];
@@ -308,12 +324,13 @@ char * top::build_canvas(frame_t fr, char fill)
   return cnv;
 }
 
-// Перевести в другие координаты
-void top::paint_canvas(char * cnv, frame_t fr, const p_t ps, size_t k, char fill)
+void top::paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill)
 {
-  int dx = ps.x - fr.left_bot.x;
-  int dy = fr.right_top.y - ps.y;
-  cnv[dy * cols(fr) + dx] = fill;
+  for (size_t i = 0; i < k; ++i) {
+    int dx = ps[i].x - fr.left_bot.x;
+    int dy = fr.right_top.y - ps[i].y;
+    cnv[dy * cols(fr) + dx] = fill;
+  }
 }
 
 void top::print_canvas(std::ostream & output, const char * cnv, frame_t fr)
