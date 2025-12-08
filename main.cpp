@@ -23,7 +23,7 @@ namespace top {
 
   struct Dot: IDraw {
     Dot(int x, int y);
-    Dot(p_t p);
+    explicit Dot(p_t p);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t o;
@@ -61,8 +61,9 @@ namespace top {
     p_t right_top;
   };
 
+  void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
-  void get_points(IDraw * b, p_t ** ps, size_t & s);
+  size_t get_points(top::IDraw & b, p_t ** ps, size_t & s);
   frame_t build_frame(const p_t * ps, size_t s);
   char * build_canvas(frame_t f);
   void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char f);
@@ -81,7 +82,7 @@ int main()
   try {
     make_f(f, 3);
     for (size_t i = 0; i < 3; ++i) {
-      get_points(f[i], &p, s);
+      get_points((*f[i]), &p, s);
     }
     frame_t fr = build_frame(p, s);
     cnv = build_canvas(fr);
@@ -236,13 +237,32 @@ void top::make_f(top::IDraw ** b, size_t k)
   b[2] = new Dot(7, 7);
 }
 
-void top::get_points(top::IDraw * b, p_t ** ps, size_t & s)
+void top::extend(p_t ** ps, size_t s, p_t p)
 {
-  p_t a = b->begin();
-  // Достать точки
-  // Сгенерировать точки
-  // Положить в ps (обновить массив)
-  // Обновить размер
+  p_t * res = new p_t[s + 1];
+  for (size_t i = 0; i < s; ++i) {
+    res[i] = (*ps)[i];
+  }
+  res[s] = p;
+  delete [] *ps;
+  *ps = res;
+}
+
+// Достать точки
+// Сгенерировать точки
+// Положить в ps (обновить массив)
+// Обновить размер
+size_t top::get_points(top::IDraw & b, p_t ** ps, size_t & s)
+{
+  p_t p = b.begin();
+  extend(ps, s, p);
+  size_t delta = 1;
+  while (b.next(p) != b.begin()) {
+    p = b.next(p);
+    extend(ps, s + delta, p);
+    ++delta;
+  }
+  return delta;
 }
 
 top::frame_t top::build_frame(const top::p_t * ps, size_t s)
