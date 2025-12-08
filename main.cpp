@@ -260,18 +260,14 @@ top::p_t top::Square::begin() const
 top::p_t top::Square::next(p_t p) const 
 {
   if (p.x == left_bot.x && p != left_bot) {
-    std::cout << "1 " << p.x << " " << p.y << "\n";
     return {p.x, p.y - 1};
   }
   if (p.y == left_bot.y + side - 1) {
-    std::cout << "2 " << p.x << " " << p.y << "\n";
     return {p.x - 1, p.y};
   }
   if (p.x == left_bot.x + side - 1) {
-    std::cout << "3 " << p.x << " " << p.y << "\n";
     return {p.x, p.y + 1};
   }
-  std::cout << "4 " << p.x << " " << p.y << "\n";
   return {p.x + 1, p.y};
 }
 
