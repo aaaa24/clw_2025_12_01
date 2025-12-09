@@ -65,6 +65,7 @@ namespace top {
     Rectangle(p_t p, int a, int b);
     Rectangle(int x, int y, int a, int b);
     Rectangle(p_t left_bot, p_t rigth_top);
+    Rectangle(f_t frame);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t left_bot;
@@ -75,10 +76,10 @@ namespace top {
     FilledRectangle(p_t p, int a, int b);
     FilledRectangle(int x, int y, int a, int b);
     FilledRectangle(p_t left_bot, p_t rigth_top);
+    FilledRectangle(f_t frame);
     p_t begin() const override;
     p_t next(p_t p) const override;
-    p_t left_bot;
-    int side_a, side_b;
+    Rectangle rect;
   };
   
   struct Square: IDraw {
@@ -269,7 +270,19 @@ top::Rectangle::Rectangle(p_t p, int a, int b):
   left_bot(p),
   side_a(a),
   side_b(b)
-{}
+{
+  if (side_a == 0 || side_b == 0) {
+    throw std::invalid_argument("side can not be 0");
+  }
+  if (side_a < 0) {
+    side_a *= -1;
+    left_bot.x -= side_a - 1;
+  }
+  if (side_b < 0) {
+    side_b *= -1;
+    left_bot.y -= side_b - 1;
+  }
+}
 
 top::Rectangle::Rectangle(int x, int y, int a, int b):
   Rectangle({x, y}, a, b)
@@ -279,6 +292,9 @@ top::Rectangle::Rectangle(p_t left_bot, p_t rigth_top):
   Rectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
 {}
 
+top::Rectangle::Rectangle(f_t frame):
+  Rectangle(frame.left_bot, frame.right_top)
+{}
 
 top::p_t top::Rectangle::begin() const
 {
@@ -301,22 +317,8 @@ top::p_t top::Rectangle::next(p_t p) const
 
 top::FilledRectangle::FilledRectangle(p_t p, int a, int b):
   IDraw(),
-  left_bot(p),
-  side_a(a),
-  side_b(b)
-{
-  if (side_a == 0 || side_b == 0) {
-    throw std::invalid_argument("side can not be 0");
-  }
-  if (side_a < 0) {
-    side_a *= -1;
-    left_bot.x -= side_a - 1;
-  }
-  if (side_b < 0) {
-    side_b *= -1;
-    left_bot.y -= side_b - 1;
-  }
-}
+  rect(p, a, b)
+{}
 
 top::FilledRectangle::FilledRectangle(int x, int y, int a, int b):
   FilledRectangle({x, y}, a, b)
@@ -326,18 +328,22 @@ top::FilledRectangle::FilledRectangle(p_t left_bot, p_t rigth_top):
   FilledRectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
 {}
 
+top::FilledRectangle::FilledRectangle(f_t frame):
+  FilledRectangle(frame.left_bot, frame.right_top)
+{}
+
 top::p_t top::FilledRectangle::begin() const
 {
-  return left_bot;
+  return rect.left_bot;
 }
 
 top::p_t top::FilledRectangle::next(p_t p) const 
 {
-  if (p.x == left_bot.x + side_a - 1 && p.y == left_bot.y + side_b - 1) {
+  if (p.x == rect.left_bot.x + rect.side_a - 1 && p.y == rect.left_bot.y + rect.side_b - 1) {
     return begin();
   }
-  if (p.x == left_bot.x + side_a - 1) {
-    return {left_bot.x, p.y + 1};
+  if (p.x == rect.left_bot.x + rect.side_a - 1) {
+    return {rect.left_bot.x, p.y + 1};
   }
   return {p.x + 1, p.y};
 }
