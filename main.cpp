@@ -68,8 +68,7 @@ namespace top {
     Rectangle(f_t frame);
     p_t begin() const override;
     p_t next(p_t p) const override;
-    p_t left_bot;
-    int side_a, side_b;
+    f_t frame;
   };
 
   struct FilledRectangle: IDraw {
@@ -79,7 +78,7 @@ namespace top {
     FilledRectangle(f_t frame);
     p_t begin() const override;
     p_t next(p_t p) const override;
-    Rectangle rect;
+    f_t frame;
   };
   
   struct Square: IDraw {
@@ -87,7 +86,7 @@ namespace top {
     Square(int x, int y, int a);
     p_t begin() const override;
     p_t next(p_t p) const override;
-    Rectangle rect;
+    f_t frame;
   };
 
   struct Circle: IDraw {
@@ -99,6 +98,9 @@ namespace top {
     int radius;
   };
 
+  f_t make_valid_frame(p_t p, int a, int b);
+  p_t next_on_rect_perimeter(p_t current, f_t frame);
+  p_t next_in_filled_rect(p_t current, f_t frame);
   void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
   void get_points(top::IDraw & b, p_t ** ps, size_t & s);
@@ -209,7 +211,7 @@ top::HLine::HLine(p_t p, int l):
   length(l)
 {
   if (length == 0) {
-    throw std::invalid_argument("lenght can not be 0");
+    throw std::invalid_argument("lenght cannot be zero");
   }
   if (length < 0) {
     length *= -1;
@@ -240,7 +242,7 @@ top::DLine::DLine(p_t p, int l):
   length(l)
 {
   if (length == 0) {
-    throw std::invalid_argument("lenght can not be 0");
+    throw std::invalid_argument("lenght cannot be zero");
   }
   if (length < 0) {
     length *= -1;
@@ -265,24 +267,50 @@ top::p_t top::DLine::next(p_t p) const
   return p_t{p.x + 1, p.y + 1};
 }
 
+top::f_t top::make_valid_frame(p_t p, int a, int b) {
+    if (a == 0 || b == 0)
+        throw std::invalid_argument("side cannot be zero");
+    p_t lb = p;
+    int w = a, h = b;
+    if (w < 0) { w = -w; lb.x -= w - 1; }
+    if (h < 0) { h = -h; lb.y -= h - 1; }
+    return { lb, {lb.x + w - 1, lb.y + h - 1} };
+}
+
+top::p_t top::next_on_rect_perimeter(p_t current, f_t frame) {
+    p_t lb = frame.left_bot;
+    p_t rt = frame.right_top;
+    int w = rt.x - lb.x + 1;
+    int h = rt.y - lb.y + 1;
+
+    if (current.x == lb.x && current != lb) {
+        return {current.x, current.y - 1};
+    }
+    if (current.y == rt.y) {
+        return {current.x - 1, current.y};
+    }
+    if (current.x == rt.x) {
+        return {current.x, current.y + 1};
+    }
+    return {current.x + 1, lb.y};
+}
+
+top::p_t top::next_in_filled_rect(p_t current, f_t frame) {
+    p_t lb = frame.left_bot;
+    p_t rt = frame.right_top;
+    if (current.x == rt.x && current.y == rt.y) {
+        return lb;
+    }
+    if (current.x == rt.x) {
+        return {lb.x, current.y + 1};
+    }
+    return {current.x + 1, current.y};
+}
+
 top::Rectangle::Rectangle(p_t p, int a, int b):
   IDraw(),
-  left_bot(p),
-  side_a(a),
-  side_b(b)
-{
-  if (side_a == 0 || side_b == 0) {
-    throw std::invalid_argument("side can not be 0");
-  }
-  if (side_a < 0) {
-    side_a *= -1;
-    left_bot.x -= side_a - 1;
-  }
-  if (side_b < 0) {
-    side_b *= -1;
-    left_bot.y -= side_b - 1;
-  }
-}
+  frame(make_valid_frame(p, a, b))
+{}
 
 top::Rectangle::Rectangle(int x, int y, int a, int b):
   Rectangle({x, y}, a, b)
@@ -298,26 +326,17 @@ top::Rectangle::Rectangle(f_t frame):
 
 top::p_t top::Rectangle::begin() const
 {
-  return left_bot;
+  return frame.left_bot;
 }
 
 top::p_t top::Rectangle::next(p_t p) const 
 {
-  if (p.x == left_bot.x && p != left_bot) {
-    return {p.x, p.y - 1};
-  }
-  if (p.y == left_bot.y + side_b - 1) {
-    return {p.x - 1, p.y};
-  }
-  if (p.x == left_bot.x + side_a - 1) {
-    return {p.x, p.y + 1};
-  }
-  return {p.x + 1, p.y};
+  return next_on_rect_perimeter(p, frame);
 }
 
 top::FilledRectangle::FilledRectangle(p_t p, int a, int b):
   IDraw(),
-  rect(p, a, b)
+  frame(make_valid_frame(p, a, b))
 {}
 
 top::FilledRectangle::FilledRectangle(int x, int y, int a, int b):
@@ -334,23 +353,17 @@ top::FilledRectangle::FilledRectangle(f_t frame):
 
 top::p_t top::FilledRectangle::begin() const
 {
-  return rect.left_bot;
+  return frame.left_bot;
 }
 
 top::p_t top::FilledRectangle::next(p_t p) const 
 {
-  if (p.x == rect.left_bot.x + rect.side_a - 1 && p.y == rect.left_bot.y + rect.side_b - 1) {
-    return begin();
-  }
-  if (p.x == rect.left_bot.x + rect.side_a - 1) {
-    return {rect.left_bot.x, p.y + 1};
-  }
-  return {p.x + 1, p.y};
+  return next_in_filled_rect(p, frame);
 }
 
 top::Square::Square(p_t p, int a):
   IDraw(),
-  rect(p, a, a)
+  frame(make_valid_frame(p, a, a))
 {}
 
 top::Square::Square(int x, int y, int a):
@@ -359,12 +372,12 @@ top::Square::Square(int x, int y, int a):
 
 top::p_t top::Square::begin() const
 {
-  return rect.begin();
+  return frame.left_bot;
 }
 
 top::p_t top::Square::next(p_t p) const 
 {
-  return rect.next(p);
+  return next_in_filled_rect(p, frame);
 }
 
 top::Circle::Circle(p_t p, int r):
@@ -389,7 +402,7 @@ top::p_t top::Circle::begin() const
   return p_t{o.x + radius, o.y};
 }
 
-// Не работает
+// Does not work
 top::p_t top::Circle::next(p_t p) const
 {
   if (radius == 1) {
