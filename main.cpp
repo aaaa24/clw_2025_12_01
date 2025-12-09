@@ -70,6 +70,16 @@ namespace top {
     p_t left_bot;
     int side_a, side_b;
   };
+
+  struct FilledRectangle: IDraw {
+    FilledRectangle(p_t p, int a, int b);
+    FilledRectangle(int x, int y, int a, int b);
+    FilledRectangle(p_t left_bot, p_t rigth_top);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    p_t left_bot;
+    int side_a, side_b;
+  };
   
   struct Square: IDraw {
     Square(p_t p, int a);
@@ -103,7 +113,7 @@ int main()
 {
   using namespace top;
   int err = 0;
-  const size_t count = 6;
+  const size_t count = 8;
   IDraw * f[count] = {};
   p_t * p = nullptr;
   size_t s = 0;
@@ -131,12 +141,14 @@ int main()
 
 void top::make_f(IDraw ** b, size_t k)
 {
-  b[0] = new Dot(0, 0);
+  b[0] = new Dot(10, 10);
   b[1] = new HLine(2, 2, 3);
   b[2] = new VLine(3, 3, 4);
-  b[3] = new DLine(-10, -10, 4);
+  b[3] = new DLine(-10, -10, -4);
   b[4] = new Square(-10, 10, 5);
-  b[5] = new Rectangle(-5, 0, 7, 6);
+  b[5] = new Rectangle(0, 0, 7, 6);
+  b[6] = new FilledRectangle(0, -5, -7, -6);
+  b[7] = new FilledRectangle(0, -5, 7, 6);
 }
 
 top::Dot::Dot(p_t p):
@@ -169,7 +181,7 @@ top::VLine::VLine(p_t p, int l):
   }
   if (length < 0) {
     length *= -1;
-    start.y -= length;
+    start.y -= length - 1;
   }
 }
 
@@ -200,7 +212,7 @@ top::HLine::HLine(p_t p, int l):
   }
   if (length < 0) {
     length *= -1;
-    start.x -= length;
+    start.x -= length - 1;
   }
 }
 
@@ -231,7 +243,7 @@ top::DLine::DLine(p_t p, int l):
   }
   if (length < 0) {
     length *= -1;
-    start.x -= length;
+    start.x -= length - 1;
   }
 }
 
@@ -283,6 +295,49 @@ top::p_t top::Rectangle::next(p_t p) const
   }
   if (p.x == left_bot.x + side_a - 1) {
     return {p.x, p.y + 1};
+  }
+  return {p.x + 1, p.y};
+}
+
+top::FilledRectangle::FilledRectangle(p_t p, int a, int b):
+  IDraw(),
+  left_bot(p),
+  side_a(a),
+  side_b(b)
+{
+  if (side_a == 0 || side_b == 0) {
+    throw std::invalid_argument("side can not be 0");
+  }
+  if (side_a < 0) {
+    side_a *= -1;
+    left_bot.x -= side_a - 1;
+  }
+  if (side_b < 0) {
+    side_b *= -1;
+    left_bot.y -= side_b - 1;
+  }
+}
+
+top::FilledRectangle::FilledRectangle(int x, int y, int a, int b):
+  FilledRectangle({x, y}, a, b)
+{}
+
+top::FilledRectangle::FilledRectangle(p_t left_bot, p_t rigth_top):
+  FilledRectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
+{}
+
+top::p_t top::FilledRectangle::begin() const
+{
+  return left_bot;
+}
+
+top::p_t top::FilledRectangle::next(p_t p) const 
+{
+  if (p.x == left_bot.x + side_a - 1 && p.y == left_bot.y + side_b - 1) {
+    return begin();
+  }
+  if (p.x == left_bot.x + side_a - 1) {
+    return {left_bot.x, p.y + 1};
   }
   return {p.x + 1, p.y};
 }
