@@ -89,6 +89,14 @@ namespace top {
     f_t frame;
   };
 
+  struct FilledSquare: IDraw {
+    FilledSquare(p_t p, int a);
+    FilledSquare(int x, int y, int a);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    f_t frame;
+  };
+
   struct Circle: IDraw {
     Circle(p_t p, int r);
     Circle(int x, int y, int r);
@@ -116,7 +124,7 @@ int main()
 {
   using namespace top;
   int err = 0;
-  const size_t count = 8;
+  const size_t count = 9;
   IDraw * f[count] = {};
   p_t * p = nullptr;
   size_t s = 0;
@@ -152,6 +160,7 @@ void top::make_f(IDraw ** b, size_t k)
   b[5] = new Rectangle(0, 0, 7, 6);
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
+  b[8] = new FilledSquare(-5, 0, -3);
 }
 
 top::Dot::Dot(p_t p):
@@ -377,6 +386,25 @@ top::p_t top::Square::begin() const
 
 top::p_t top::Square::next(p_t p) const 
 {
+  return next_on_rect_perimeter(p, frame);
+}
+
+top::FilledSquare::FilledSquare(p_t p, int a):
+  IDraw(),
+  frame(make_valid_frame(p, a, a))
+{}
+
+top::FilledSquare::FilledSquare(int x, int y, int a):
+  FilledSquare({x, y}, a)
+{}
+
+top::p_t top::FilledSquare::begin() const
+{
+  return frame.left_bot;
+}
+
+top::p_t top::FilledSquare::next(p_t p) const 
+{
   return next_in_filled_rect(p, frame);
 }
 
@@ -488,12 +516,12 @@ char * top::build_canvas(f_t fr, char fill)
   return cnv;
 }
 
-void top::paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill)
+void top::paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char figure)
 {
   for (size_t i = 0; i < k; ++i) {
     int dx = ps[i].x - fr.left_bot.x;
     int dy = fr.right_top.y - ps[i].y;
-    cnv[dy * cols(fr) + dx] = fill;
+    cnv[dy * cols(fr) + dx] = figure;
   }
 }
 
