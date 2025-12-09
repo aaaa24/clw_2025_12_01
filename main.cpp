@@ -6,7 +6,7 @@ namespace top {
     int x, y;
   };
 
-  struct frame_t {
+  struct f_t {
     p_t left_bot;
     p_t right_top;
   };
@@ -101,12 +101,12 @@ namespace top {
   void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
   void get_points(top::IDraw & b, p_t ** ps, size_t & s);
-  frame_t build_frame(const p_t * ps, size_t s);
-  size_t rows(frame_t fr);
-  size_t cols(frame_t fr);
-  char * build_canvas(frame_t fr, char fill);
-  void paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill);
-  void print_canvas(std::ostream & output, const char * cnv, frame_t fr);
+  f_t build_frame(const p_t * ps, size_t s);
+  size_t rows(f_t fr);
+  size_t cols(f_t fr);
+  char * build_canvas(f_t fr, char fill);
+  void paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill);
+  void print_canvas(std::ostream & output, const char * cnv, f_t fr);
 }
 
 int main()
@@ -124,7 +124,7 @@ int main()
     for (size_t i = 0; i < count; ++i) {
       get_points((*f[i]), &p, s);
     }
-    frame_t fr = build_frame(p, s);
+    f_t fr = build_frame(p, s);
     cnv = build_canvas(fr, '.');
     paint_canvas(cnv, fr, p, s, '#');
     print_canvas(output, cnv, fr);
@@ -432,7 +432,7 @@ void top::get_points(IDraw & b, p_t ** ps, size_t & s)
   s = new_size;
 }
 
-top::frame_t top::build_frame(const p_t * ps, size_t s)
+top::f_t top::build_frame(const p_t * ps, size_t s)
 {
   if (!s) {
     throw std::logic_error("bad size");
@@ -450,17 +450,17 @@ top::frame_t top::build_frame(const p_t * ps, size_t s)
   return {aa, bb};
 }
 
-size_t top::rows(frame_t fr)
+size_t top::rows(f_t fr)
 {
   return (fr.right_top.y - fr.left_bot.y + 1);
 }
 
-size_t top::cols(frame_t fr)
+size_t top::cols(f_t fr)
 {
   return (fr.right_top.x - fr.left_bot.x + 1);
 }
 
-char * top::build_canvas(frame_t fr, char fill)
+char * top::build_canvas(f_t fr, char fill)
 {
   char * cnv = new char[rows(fr) * cols(fr)];
   for (size_t i = 0; i < rows(fr) * cols(fr); ++i) {
@@ -469,7 +469,7 @@ char * top::build_canvas(frame_t fr, char fill)
   return cnv;
 }
 
-void top::paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fill)
+void top::paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill)
 {
   for (size_t i = 0; i < k; ++i) {
     int dx = ps[i].x - fr.left_bot.x;
@@ -478,7 +478,7 @@ void top::paint_canvas(char * cnv, frame_t fr, const p_t * ps, size_t k, char fi
   }
 }
 
-void top::print_canvas(std::ostream & output, const char * cnv, frame_t fr)
+void top::print_canvas(std::ostream & output, const char * cnv, f_t fr)
 {
   for (size_t i = 0; i < rows(fr); ++i) {
     for (size_t j = 0; j < cols(fr); ++j) {
