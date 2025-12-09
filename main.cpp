@@ -35,8 +35,8 @@ namespace top {
   };
 
   struct VLine: IDraw {
-    VLine(int x, int y, int l);
     VLine(p_t p, int l);
+    VLine(int x, int y, int l);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t start;
@@ -44,8 +44,8 @@ namespace top {
   };
 
   struct HLine: IDraw {
-    HLine(int x, int y, int l);
     HLine(p_t p, int l);
+    HLine(int x, int y, int l);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t start;
@@ -53,26 +53,35 @@ namespace top {
   };
 
   struct DLine: IDraw {
-    DLine(int x, int y, int l);
     DLine(p_t p, int l);
+    DLine(int x, int y, int l);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t start;
     int length;
   };
 
-  struct Square: IDraw {
-    Square(int x, int y, int a);
-    Square(p_t p, int a);
+  struct Rectangle: IDraw {
+    Rectangle(p_t p, int a, int b);
+    Rectangle(int x, int y, int a, int b);
+    Rectangle(p_t left_bot, p_t rigth_top);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t left_bot;
-    int side;
+    int side_a, side_b;
+  };
+  
+  struct Square: IDraw {
+    Square(p_t p, int a);
+    Square(int x, int y, int a);
+    p_t begin() const override;
+    p_t next(p_t p) const override;
+    Rectangle rect;
   };
 
   struct Circle: IDraw {
-    Circle(int x, int y, int r);
     Circle(p_t p, int r);
+    Circle(int x, int y, int r);
     p_t begin() const override;
     p_t next(p_t p) const override;
     p_t o;
@@ -94,7 +103,7 @@ int main()
 {
   using namespace top;
   int err = 0;
-  const size_t count = 5;
+  const size_t count = 6;
   IDraw * f[count] = {};
   p_t * p = nullptr;
   size_t s = 0;
@@ -127,16 +136,17 @@ void top::make_f(IDraw ** b, size_t k)
   b[2] = new VLine(3, 3, 4);
   b[3] = new DLine(-10, -10, 4);
   b[4] = new Square(-10, 10, 5);
+  b[5] = new Rectangle(-5, 0, 7, 6);
 }
-
-top::Dot::Dot(int x, int y):
-  IDraw(),
-  o{x, y}
-{}
 
 top::Dot::Dot(p_t p):
   IDraw(),
   o(p)
+{}
+
+top::Dot::Dot(int x, int y):
+  IDraw(),
+  o({x, y})
 {}
 
 top::p_t top::Dot::begin() const
@@ -148,10 +158,6 @@ top::p_t top::Dot::next(p_t p) const
 {
   return begin();
 }
-
-top::VLine::VLine(int x, int y, int l):
-  VLine({x, y}, l)
-{}
 
 top::VLine::VLine(p_t p, int l):
   IDraw(),
@@ -167,6 +173,10 @@ top::VLine::VLine(p_t p, int l):
   }
 }
 
+top::VLine::VLine(int x, int y, int l):
+  VLine({x, y}, l)
+{}
+
 top::p_t top::VLine::begin() const
 {
   return start;
@@ -179,10 +189,6 @@ top::p_t top::VLine::next(p_t p) const
   }
   return p_t{start.x, p.y + 1};
 }
-
-top::HLine::HLine(int x, int y, int l):
-  HLine({x, y}, l)
-{}
 
 top::HLine::HLine(p_t p, int l):
   IDraw(),
@@ -198,6 +204,10 @@ top::HLine::HLine(p_t p, int l):
   }
 }
 
+top::HLine::HLine(int x, int y, int l):
+  HLine({x, y}, l)
+{}
+
 top::p_t top::HLine::begin() const
 {
   return start;
@@ -210,10 +220,6 @@ top::p_t top::HLine::next(p_t p) const
   }
   return p_t{p.x + 1, start.y};
 }
-
-top::DLine::DLine(int x, int y, int l):
-  DLine({x, y}, l)
-{}
 
 top::DLine::DLine(p_t p, int l):
   IDraw(),
@@ -229,6 +235,10 @@ top::DLine::DLine(p_t p, int l):
   }
 }
 
+top::DLine::DLine(int x, int y, int l):
+  DLine({x, y}, l)
+{}
+
 top::p_t top::DLine::begin() const
 {
   return start;
@@ -242,38 +252,59 @@ top::p_t top::DLine::next(p_t p) const
   return p_t{p.x + 1, p.y + 1};
 }
 
-top::Square::Square(int x, int y, int a):
-  Square({x, y}, a)
-{}
-
-top::Square::Square(p_t p, int a):
+top::Rectangle::Rectangle(p_t p, int a, int b):
   IDraw(),
   left_bot(p),
-  side(a)
+  side_a(a),
+  side_b(b)
 {}
 
-top::p_t top::Square::begin() const
+top::Rectangle::Rectangle(int x, int y, int a, int b):
+  Rectangle({x, y}, a, b)
+{}
+
+top::Rectangle::Rectangle(p_t left_bot, p_t rigth_top):
+  Rectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
+{}
+
+
+top::p_t top::Rectangle::begin() const
 {
   return left_bot;
 }
 
-top::p_t top::Square::next(p_t p) const 
+top::p_t top::Rectangle::next(p_t p) const 
 {
   if (p.x == left_bot.x && p != left_bot) {
     return {p.x, p.y - 1};
   }
-  if (p.y == left_bot.y + side - 1) {
+  if (p.y == left_bot.y + side_b - 1) {
     return {p.x - 1, p.y};
   }
-  if (p.x == left_bot.x + side - 1) {
+  if (p.x == left_bot.x + side_a - 1) {
     return {p.x, p.y + 1};
   }
   return {p.x + 1, p.y};
 }
 
-top::Circle::Circle(int x, int y, int r):
-  Circle({x, y}, r)
+top::Square::Square(p_t p, int a):
+  IDraw(),
+  rect(p, a, a)
 {}
+
+top::Square::Square(int x, int y, int a):
+  Square({x, y}, a)
+{}
+
+top::p_t top::Square::begin() const
+{
+  return rect.begin();
+}
+
+top::p_t top::Square::next(p_t p) const 
+{
+  return rect.next(p);
+}
 
 top::Circle::Circle(p_t p, int r):
   IDraw(),
@@ -287,6 +318,10 @@ top::Circle::Circle(p_t p, int r):
     radius *= -1;
   }
 }
+
+top::Circle::Circle(int x, int y, int r):
+  Circle({x, y}, r)
+{}
 
 top::p_t top::Circle::begin() const
 {
