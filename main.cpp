@@ -81,7 +81,6 @@ namespace top {
   p_t next_on_rect_perimeter(p_t current, f_t frame);
   p_t next_in_filled_rect(p_t current, f_t frame);
   void make_f(IDraw ** b, size_t k);
-  f_t build_frame(const p_t * ps, size_t s);
   char * build_canvas(f_t fr, char fill);
   void paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill);
   void print_canvas(std::ostream & output, const char * cnv, f_t fr);
@@ -400,24 +399,6 @@ top::p_t top::Circle::next(p_t p) const
     }
   }
   return p;
-}
-
-top::f_t top::build_frame(const p_t * ps, size_t s)
-{
-  if (!s) {
-    throw std::logic_error("bad size");
-  }
-  int minx = ps[0].x, maxx = minx;
-  int miny = ps[0].y, maxy = miny;
-  for (size_t i = 1; i < s; ++i) {
-    minx = std::min(minx, ps[i].x);
-    maxx = std::max(maxx, ps[i].x);
-    miny = std::min(miny, ps[i].y);
-    maxy = std::max(maxy, ps[i].y);
-  }
-  p_t aa{minx, miny};
-  p_t bb{maxx, maxy};
-  return {aa, bb};
 }
 
 char * top::build_canvas(f_t fr, char fill)

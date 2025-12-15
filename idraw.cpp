@@ -3,15 +3,17 @@
 
 using top::p_t;
 
-void extend(p_t ** ps, size_t s, p_t p)
-{
+namespace {
+  void extend(p_t ** ps, size_t s, p_t p)
+  {
   p_t * res = new p_t[s + 1];
   for (size_t i = 0; i < s; ++i) {
-    res[i] = (*ps)[i];
+      res[i] = (*ps)[i];
   }
   res[s] = p;
   delete [] *ps;
   *ps = res;
+  }
 }
 
 void top::get_points(IDraw & b, p_t ** ps, size_t & s)
