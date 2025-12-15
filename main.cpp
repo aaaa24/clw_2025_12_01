@@ -1,31 +1,8 @@
 #include <iostream>
 #include <cmath>
+#include "geom.hpp"
 
 namespace top {
-  struct p_t {
-    int x, y;
-  };
-
-  struct f_t {
-    p_t left_bot;
-    p_t right_top;
-  };
-
-  struct IDraw {
-    virtual p_t begin() const = 0;
-    virtual p_t next(p_t) const = 0;
-  };
-
-  bool operator==(p_t a, p_t b)
-  {
-    return a.x == b.x && a.y == b.y;
-  }
-
-  bool operator!=(p_t a, p_t b)
-  {
-    return !(a == b);
-  }
-
   struct Dot: IDraw {
     Dot(int x, int y);
     explicit Dot(p_t p);
@@ -80,7 +57,7 @@ namespace top {
     p_t next(p_t p) const override;
     f_t frame;
   };
-  
+
   struct Square: IDraw {
     Square(p_t p, int a);
     Square(int x, int y, int a);
