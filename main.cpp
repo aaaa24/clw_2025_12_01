@@ -3,6 +3,7 @@
 #include "geom.hpp"
 #include "idraw.hpp"
 #include "dot.hpp"
+#include "canvas.hpp"
 
 namespace top {
   struct VLine: IDraw {
@@ -80,11 +81,9 @@ namespace top {
   f_t make_valid_frame(p_t p, int a, int b);
   p_t next_on_rect_perimeter(p_t current, f_t frame);
   p_t next_in_filled_rect(p_t current, f_t frame);
-  void make_f(IDraw ** b, size_t k);
-  char * build_canvas(f_t fr, char fill);
-  void paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill);
-  void print_canvas(std::ostream & output, const char * cnv, f_t fr);
 }
+
+void make_f(top::IDraw ** b, size_t k);
 
 int main()
 {
@@ -116,8 +115,9 @@ int main()
   return err;
 }
 
-void top::make_f(IDraw ** b, size_t k)
+void make_f(top::IDraw ** b, size_t k)
 {
+  using namespace top;
   b[0] = new Dot(10, 10);
   b[1] = new HLine(2, 2, 3);
   b[2] = new VLine(3, 3, 4);
@@ -399,32 +399,4 @@ top::p_t top::Circle::next(p_t p) const
     }
   }
   return p;
-}
-
-char * top::build_canvas(f_t fr, char fill)
-{
-  char * cnv = new char[rows(fr) * cols(fr)];
-  for (size_t i = 0; i < rows(fr) * cols(fr); ++i) {
-    cnv[i] = fill;
-  }
-  return cnv;
-}
-
-void top::paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char figure)
-{
-  for (size_t i = 0; i < k; ++i) {
-    int dx = ps[i].x - fr.left_bot.x;
-    int dy = fr.right_top.y - ps[i].y;
-    cnv[dy * cols(fr) + dx] = figure;
-  }
-}
-
-void top::print_canvas(std::ostream & output, const char * cnv, f_t fr)
-{
-  for (size_t i = 0; i < rows(fr); ++i) {
-    for (size_t j = 0; j < cols(fr); ++j) {
-      output << cnv[i * cols(fr) + j];
-    }
-    output << "\n";
-  }
 }
