@@ -1,9 +1,6 @@
 #include <iostream>
 #include <cmath>
-#include "geom.hpp"
-#include "idraw.hpp"
-#include "dot.hpp"
-#include "canvas.hpp"
+#include "tdraw.hpp"
 
 namespace top {
   struct VLine: IDraw {
