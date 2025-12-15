@@ -87,7 +87,6 @@ namespace top {
   f_t make_valid_frame(p_t p, int a, int b);
   p_t next_on_rect_perimeter(p_t current, f_t frame);
   p_t next_in_filled_rect(p_t current, f_t frame);
-  void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
   f_t build_frame(const p_t * ps, size_t s);
   char * build_canvas(f_t fr, char fill);
@@ -428,30 +427,6 @@ top::p_t top::Circle::next(p_t p) const
     }
   }
   return p;
-}
-
-void top::extend(p_t ** ps, size_t s, p_t p)
-{
-  p_t * res = new p_t[s + 1];
-  for (size_t i = 0; i < s; ++i) {
-    res[i] = (*ps)[i];
-  }
-  res[s] = p;
-  delete [] *ps;
-  *ps = res;
-}
-
-void top::get_points(IDraw & b, p_t ** ps, size_t & s)
-{
-  p_t p = b.begin();
-  extend(ps, s, p);
-  size_t new_size = s + 1;
-  while (b.next(p) != b.begin()) {
-    p = b.next(p);
-    extend(ps, new_size, p);
-    new_size++;
-  }
-  s = new_size;
 }
 
 top::f_t top::build_frame(const p_t * ps, size_t s)
