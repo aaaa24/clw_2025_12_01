@@ -2,16 +2,9 @@
 #include <cmath>
 #include "geom.hpp"
 #include "idraw.hpp"
+#include "dot.hpp"
 
 namespace top {
-  struct Dot: IDraw {
-    Dot(int x, int y);
-    explicit Dot(p_t p);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    p_t o;
-  };
-
   struct VLine: IDraw {
     VLine(p_t p, int l);
     VLine(int x, int y, int l);
@@ -135,26 +128,6 @@ void top::make_f(IDraw ** b, size_t k)
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
-}
-
-top::Dot::Dot(p_t p):
-  IDraw(),
-  o(p)
-{}
-
-top::Dot::Dot(int x, int y):
-  IDraw(),
-  o({x, y})
-{}
-
-top::p_t top::Dot::begin() const
-{
-  return o;
-}
-
-top::p_t top::Dot::next(p_t p) const
-{
-  return begin();
 }
 
 top::VLine::VLine(p_t p, int l):
