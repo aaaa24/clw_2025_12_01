@@ -90,8 +90,6 @@ namespace top {
   void make_f(IDraw ** b, size_t k);
   void get_points(top::IDraw & b, p_t ** ps, size_t & s);
   f_t build_frame(const p_t * ps, size_t s);
-  size_t rows(f_t fr);
-  size_t cols(f_t fr);
   char * build_canvas(f_t fr, char fill);
   void paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill);
   void print_canvas(std::ostream & output, const char * cnv, f_t fr);
@@ -472,16 +470,6 @@ top::f_t top::build_frame(const p_t * ps, size_t s)
   p_t aa{minx, miny};
   p_t bb{maxx, maxy};
   return {aa, bb};
-}
-
-size_t top::rows(f_t fr)
-{
-  return (fr.right_top.y - fr.left_bot.y + 1);
-}
-
-size_t top::cols(f_t fr)
-{
-  return (fr.right_top.x - fr.left_bot.x + 1);
 }
 
 char * top::build_canvas(f_t fr, char fill)
