@@ -1,6 +1,7 @@
 #include <iostream>
 #include <cmath>
 #include "geom.hpp"
+#include "idraw.hpp"
 
 namespace top {
   struct Dot: IDraw {
@@ -88,7 +89,6 @@ namespace top {
   p_t next_in_filled_rect(p_t current, f_t frame);
   void extend(p_t ** ps, size_t s, p_t p);
   void make_f(IDraw ** b, size_t k);
-  void get_points(top::IDraw & b, p_t ** ps, size_t & s);
   f_t build_frame(const p_t * ps, size_t s);
   char * build_canvas(f_t fr, char fill);
   void paint_canvas(char * cnv, f_t fr, const p_t * ps, size_t k, char fill);
