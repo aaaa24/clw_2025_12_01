@@ -1,17 +1,5 @@
 #include <iostream>
-#include <cmath>
 #include "tdraw.hpp"
-
-namespace top {
-  struct Circle: IDraw {
-    Circle(p_t p, int r);
-    Circle(int x, int y, int r);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    p_t o;
-    int radius;
-  };
-}
 
 void make_f(top::IDraw ** b, size_t k);
 
@@ -57,51 +45,4 @@ void make_f(top::IDraw ** b, size_t k)
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
-}
-
-top::Circle::Circle(p_t p, int r):
-  IDraw(),
-  o{p.x, p.y},
-  radius(r)
-{
-  if (radius == 0) {
-    throw std::invalid_argument("radius can not be 0");
-  }
-  if (radius < 0) {
-    radius *= -1;
-  }
-}
-
-top::Circle::Circle(int x, int y, int r):
-  Circle({x, y}, r)
-{}
-
-top::p_t top::Circle::begin() const
-{
-  return p_t{o.x + radius, o.y};
-}
-
-// Does not work
-top::p_t top::Circle::next(p_t p) const
-{
-  if (radius == 1) {
-    return begin();
-  }
-  const double PI = acos(-1.0);
-  int dx = p.x - o.x;
-  int dy = p.y - o.y;
-  int angle = atan2(dy, dx) * 180.0 / PI;
-  if (angle < 0) {
-    angle += 360;
-  }
-  for (int i = 0; i < 360; ++i) {
-    int new_angle = (angle + i) % 360;
-    int new_x = o.x + radius * cos(new_angle);
-    int new_y = o.y + radius * sin(new_angle);
-    p_t new_p{new_x, new_y};
-    if (new_p != p) {
-      return new_p;
-    }
-  }
-  return p;
 }

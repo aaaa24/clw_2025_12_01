@@ -3,6 +3,7 @@
 
 #include "geom.hpp"
 #include "idraw.hpp"
+#include "canvas.hpp"
 #include "dot.hpp"
 #include "vline.hpp"
 #include "hline.hpp"
@@ -12,6 +13,6 @@
 #include "filled_rectangle.hpp"
 #include "square.hpp"
 #include "filled_square.hpp"
-#include "canvas.hpp"
+#include "circle.hpp"
 
 #endif
