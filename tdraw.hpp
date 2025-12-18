@@ -11,6 +11,7 @@
 #include "rectangle.hpp"
 #include "filled_rectangle.hpp"
 #include "square.hpp"
+#include "filled_square.hpp"
 #include "canvas.hpp"
 
 #endif

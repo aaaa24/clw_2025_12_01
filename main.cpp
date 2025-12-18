@@ -3,14 +3,6 @@
 #include "tdraw.hpp"
 
 namespace top {
-  struct FilledSquare: IDraw {
-    FilledSquare(p_t p, int a);
-    FilledSquare(int x, int y, int a);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    f_t frame;
-  };
-
   struct Circle: IDraw {
     Circle(p_t p, int r);
     Circle(int x, int y, int r);
@@ -65,25 +57,6 @@ void make_f(top::IDraw ** b, size_t k)
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
-}
-
-top::FilledSquare::FilledSquare(p_t p, int a):
-  IDraw(),
-  frame(make_valid_frame(p, a, a))
-{}
-
-top::FilledSquare::FilledSquare(int x, int y, int a):
-  FilledSquare({x, y}, a)
-{}
-
-top::p_t top::FilledSquare::begin() const
-{
-  return frame.left_bot;
-}
-
-top::p_t top::FilledSquare::next(p_t p) const 
-{
-  return next_in_filled_rect(p, frame);
 }
 
 top::Circle::Circle(p_t p, int r):
