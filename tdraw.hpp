@@ -9,6 +9,7 @@
 #include "dline.hpp"
 #include "rectframe.hpp"
 #include "rectangle.hpp"
+#include "filled_rectangle.hpp"
 #include "canvas.hpp"
 
 #endif

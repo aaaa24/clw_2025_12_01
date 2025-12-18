@@ -3,16 +3,6 @@
 #include "tdraw.hpp"
 
 namespace top {
-  struct FilledRectangle: IDraw {
-    FilledRectangle(p_t p, int a, int b);
-    FilledRectangle(int x, int y, int a, int b);
-    FilledRectangle(p_t left_bot, p_t rigth_top);
-    FilledRectangle(f_t frame);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    f_t frame;
-  };
-
   struct Square: IDraw {
     Square(p_t p, int a);
     Square(int x, int y, int a);
@@ -84,23 +74,6 @@ void make_f(top::IDraw ** b, size_t k)
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
 }
-
-top::FilledRectangle::FilledRectangle(p_t p, int a, int b):
-  IDraw(),
-  frame(make_valid_frame(p, a, b))
-{}
-
-top::FilledRectangle::FilledRectangle(int x, int y, int a, int b):
-  FilledRectangle({x, y}, a, b)
-{}
-
-top::FilledRectangle::FilledRectangle(p_t left_bot, p_t rigth_top):
-  FilledRectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
-{}
-
-top::FilledRectangle::FilledRectangle(f_t frame):
-  FilledRectangle(frame.left_bot, frame.right_top)
-{}
 
 top::p_t top::FilledRectangle::begin() const
 {
