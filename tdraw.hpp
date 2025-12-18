@@ -4,6 +4,7 @@
 #include "geom.hpp"
 #include "idraw.hpp"
 #include "dot.hpp"
+#include "vline.hpp"
 #include "canvas.hpp"
 
 #endif

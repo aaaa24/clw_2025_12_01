@@ -3,15 +3,6 @@
 #include "tdraw.hpp"
 
 namespace top {
-  struct VLine: IDraw {
-    VLine(p_t p, int l);
-    VLine(int x, int y, int l);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    p_t start;
-    int length;
-  };
-
   struct HLine: IDraw {
     HLine(p_t p, int l);
     HLine(int x, int y, int l);
@@ -124,37 +115,6 @@ void make_f(top::IDraw ** b, size_t k)
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
-}
-
-top::VLine::VLine(p_t p, int l):
-  IDraw(),
-  start{p.x, p.y},
-  length(l)
-{
-  if (length == 0) {
-    throw std::invalid_argument("lenght can not be 0");
-  }
-  if (length < 0) {
-    length *= -1;
-    start.y -= length - 1;
-  }
-}
-
-top::VLine::VLine(int x, int y, int l):
-  VLine({x, y}, l)
-{}
-
-top::p_t top::VLine::begin() const
-{
-  return start;
-}
-
-top::p_t top::VLine::next(p_t p) const
-{
-  if (p.y == start.y + length - 1) {
-    return begin();
-  }
-  return p_t{start.x, p.y + 1};
 }
 
 top::HLine::HLine(p_t p, int l):
