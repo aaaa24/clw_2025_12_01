@@ -3,16 +3,6 @@
 #include "tdraw.hpp"
 
 namespace top {
-  struct Rectangle: IDraw {
-    Rectangle(p_t p, int a, int b);
-    Rectangle(int x, int y, int a, int b);
-    Rectangle(p_t left_bot, p_t rigth_top);
-    Rectangle(f_t frame);
-    p_t begin() const override;
-    p_t next(p_t p) const override;
-    f_t frame;
-  };
-
   struct FilledRectangle: IDraw {
     FilledRectangle(p_t p, int a, int b);
     FilledRectangle(int x, int y, int a, int b);
@@ -47,10 +37,6 @@ namespace top {
     p_t o;
     int radius;
   };
-
-  f_t make_valid_frame(p_t p, int a, int b);
-  p_t next_on_rect_perimeter(p_t current, f_t frame);
-  p_t next_in_filled_rect(p_t current, f_t frame);
 }
 
 void make_f(top::IDraw ** b, size_t k);
@@ -97,73 +83,6 @@ void make_f(top::IDraw ** b, size_t k)
   b[6] = new FilledRectangle(0, -5, -7, -6);
   b[7] = new FilledRectangle(0, -5, 7, 6);
   b[8] = new FilledSquare(-5, 0, -3);
-}
-
-top::f_t top::make_valid_frame(p_t p, int a, int b) {
-    if (a == 0 || b == 0)
-        throw std::invalid_argument("side cannot be zero");
-    p_t lb = p;
-    int w = a, h = b;
-    if (w < 0) { w = -w; lb.x -= w - 1; }
-    if (h < 0) { h = -h; lb.y -= h - 1; }
-    return { lb, {lb.x + w - 1, lb.y + h - 1} };
-}
-
-top::p_t top::next_on_rect_perimeter(p_t current, f_t frame) {
-    p_t lb = frame.left_bot;
-    p_t rt = frame.right_top;
-    int w = rt.x - lb.x + 1;
-    int h = rt.y - lb.y + 1;
-
-    if (current.x == lb.x && current != lb) {
-        return {current.x, current.y - 1};
-    }
-    if (current.y == rt.y) {
-        return {current.x - 1, current.y};
-    }
-    if (current.x == rt.x) {
-        return {current.x, current.y + 1};
-    }
-    return {current.x + 1, lb.y};
-}
-
-top::p_t top::next_in_filled_rect(p_t current, f_t frame) {
-    p_t lb = frame.left_bot;
-    p_t rt = frame.right_top;
-    if (current.x == rt.x && current.y == rt.y) {
-        return lb;
-    }
-    if (current.x == rt.x) {
-        return {lb.x, current.y + 1};
-    }
-    return {current.x + 1, current.y};
-}
-
-top::Rectangle::Rectangle(p_t p, int a, int b):
-  IDraw(),
-  frame(make_valid_frame(p, a, b))
-{}
-
-top::Rectangle::Rectangle(int x, int y, int a, int b):
-  Rectangle({x, y}, a, b)
-{}
-
-top::Rectangle::Rectangle(p_t left_bot, p_t rigth_top):
-  Rectangle(left_bot, rigth_top.x - left_bot.x, rigth_top.y - left_bot.y)
-{}
-
-top::Rectangle::Rectangle(f_t frame):
-  Rectangle(frame.left_bot, frame.right_top)
-{}
-
-top::p_t top::Rectangle::begin() const
-{
-  return frame.left_bot;
-}
-
-top::p_t top::Rectangle::next(p_t p) const 
-{
-  return next_on_rect_perimeter(p, frame);
 }
 
 top::FilledRectangle::FilledRectangle(p_t p, int a, int b):

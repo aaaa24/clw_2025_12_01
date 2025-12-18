@@ -7,6 +7,8 @@
 #include "vline.hpp"
 #include "hline.hpp"
 #include "dline.hpp"
+#include "rectframe.hpp"
+#include "rectangle.hpp"
 #include "canvas.hpp"
 
 #endif
