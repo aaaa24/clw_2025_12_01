@@ -10,6 +10,7 @@
 #include "rectframe.hpp"
 #include "rectangle.hpp"
 #include "filled_rectangle.hpp"
+#include "square.hpp"
 #include "canvas.hpp"
 
 #endif

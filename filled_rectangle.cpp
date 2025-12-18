@@ -17,3 +17,13 @@ top::FilledRectangle::FilledRectangle(p_t left_bot, p_t rigth_top):
 top::FilledRectangle::FilledRectangle(f_t frame):
   FilledRectangle(frame.left_bot, frame.right_top)
 {}
+
+top::p_t top::FilledRectangle::begin() const
+{
+  return frame.left_bot;
+}
+
+top::p_t top::FilledRectangle::next(p_t p) const 
+{
+  return next_in_filled_rect(p, frame);
+}
