@@ -6,6 +6,7 @@
 #include "dot.hpp"
 #include "vline.hpp"
 #include "hline.hpp"
+#include "dline.hpp"
 #include "canvas.hpp"
 
 #endif
