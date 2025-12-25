@@ -1,7 +1,7 @@
-CPPFLAGS += -Wall -Wexrta -std=c++11
+CPPFLAGS += -Wall -Wextra -std=c++11
 SRC = $(wildcard *.cpp)
 OBJ = $(SRC:%.cpp=%.o)
-paint: $(SRC)
+paint: $(OBJ)
 	$(CXX) $^ -o $@
 
 
