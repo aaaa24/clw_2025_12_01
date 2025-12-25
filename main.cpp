@@ -1,7 +1,7 @@
 #include <iostream>
 #include "tdraw.hpp"
 
-void make_f(top::IDraw ** b, size_t k);
+void make_f(top::IDraw ** b);
 
 int main()
 {
@@ -14,7 +14,7 @@ int main()
   char * cnv = nullptr;
   std::ostream & output = std::cout;
   try {
-    make_f(f, count);
+    make_f(f);
     for (size_t i = 0; i < count; ++i) {
       get_points((*f[i]), &p, s);
     }
@@ -33,7 +33,7 @@ int main()
   return err;
 }
 
-void make_f(top::IDraw ** b, size_t k)
+void make_f(top::IDraw ** b)
 {
   using namespace top;
   b[0] = new Dot(10, 10);

@@ -18,8 +18,6 @@ top::f_t top::make_valid_frame(p_t p, int a, int b) {
 top::p_t top::next_on_rect_perimeter(p_t current, f_t frame) {
   p_t lb = frame.left_bot;
   p_t rt = frame.right_top;
-  int w = rt.x - lb.x + 1;
-  int h = rt.y - lb.y + 1;
 
   if (current.x == lb.x && current != lb) {
     return {current.x, current.y - 1};

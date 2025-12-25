@@ -15,7 +15,7 @@ top::p_t top::Dot::begin() const
   return o;
 }
 
-top::p_t top::Dot::next(p_t p) const
+top::p_t top::Dot::next(p_t) const
 {
   return begin();
 }
