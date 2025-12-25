@@ -12,4 +12,4 @@ cli: cli.o
 	$(CXX) $^ -o $@
 
 clean:
-	$(RM) -rf $(OBJ) paint
+	$(RM) -rf $(OBJ) paint cli
