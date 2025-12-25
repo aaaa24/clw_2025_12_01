@@ -1,15 +1,28 @@
 #include <cassert>
 #include <cstring>
 #include <iostream>
+#include <limits>
 
-void hi()
+void skipline(std::istream & is)
 {
-  std::cout << "< HI! >\n";
+  using lim_t = std::numeric_limits< std::streamsize >;
+  is.ignore(lim_t::max(), '\n');
 }
 
-void hello()
+void next(std::istream & is, std::ostream & os, size_t & context)
 {
-  std::cout << "< HELLO! >\n";
+  size_t i = 0;
+  if (!(is >> i)) {
+    throw std::runtime_error("next excepts ull in param");
+  }
+  skipline(std::cin);
+  context = i;
+  os << "< OK >\n";
+}
+
+void last(std::istream &, std::ostream & os, size_t & context)
+{
+  os << "< " << context << " >\n";
 }
 
 bool is_space(char c)
@@ -48,11 +61,22 @@ size_t match(const char * word, const char * const * words, size_t k)
   return k;
 }
 
+// Как вариант на будущее
+struct Cmd {
+  virtual const char * name() const = 0;
+  virtual const char * help() const = 0;
+  virtual const char * desc() const = 0;
+  virtual void invoke() const = 0;
+};
+
 int main()
 {
   constexpr size_t cmds_count = 2;
-  void(*cmds[cmds_count])() = {hi, hello};
-  const char * const cmds_text[] = {"hi", "hello"};
+  using cmd_t = void(*)(std::istream &, std::ostream &, size_t &);
+  cmd_t cmds[] = {next, last};
+  const char * const cmds_text[] = {"next", "last"};
+
+  size_t context = 0;
 
   constexpr size_t bcapacity = 255;
   char word[bcapacity + 1] = {};
@@ -65,7 +89,15 @@ int main()
     } else {
       word[size - 1] = '\0';
       if (size_t i = match(word, cmds_text, cmds_count); i < cmds_count) {
-        cmds[i]();
+        try {
+          cmds[i](std::cin, std::cout, context);
+        } catch (const std::exception & e) {
+          std::cerr << "< INVALID COMMAND: " << e.what() << " >\n";
+          if (std::cin.fail()) {
+            std::cin.clear(std::cin.rdstate() ^ std::ios::failbit);
+          }
+          skipline(std::cin);
+        }
       } else {
         std::cerr << "< UNKNOWN COMMAND >\n";
       }
